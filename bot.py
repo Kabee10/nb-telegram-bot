@@ -119,3 +119,4 @@ def news_worker():
 
 
 threading.Thread(target=news_worker, daemon=True).start()
+send_to_telegram("TEST", "NB Telegram Bot is working ✅", "https://t.me/EX704")
