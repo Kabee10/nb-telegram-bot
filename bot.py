@@ -43,7 +43,7 @@ def send_to_telegram(source, title, link):
 
     message = (
         f"🟢 <b>خبر کریپتو | Crypto News</b>\n\n"
-        f"🇮🇷 <b>فارسی:</b>\n"
+        f"🇦🇫 <b>فارسی:</b>\n"
         f"{html.escape(persian_title)}\n\n"
         f"🇬🇧 <b>English:</b>\n"
         f"{html.escape(title)}\n\n"
