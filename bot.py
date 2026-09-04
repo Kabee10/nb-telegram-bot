@@ -29,10 +29,13 @@ def home():
 
 def translate_to_persian(text):
     try:
-        return GoogleTranslator(source="auto", target="fa").translate(text)
-    except Exception:
-        return text
+        translated = GoogleTranslator(source="en", target="fa").translate(text)
+        if translated and "Error 500" not in translated and "Server Error" not in translated:
+            return translated
+    except Exception as e:
+        print(f"Translation error: {e}")
 
+    return "ترجمه فارسی موقتاً در دسترس نیست."
 
 def send_to_telegram(source, title, link):
     if not BOT_TOKEN or not CHANNEL_ID:
@@ -41,11 +44,10 @@ def send_to_telegram(source, title, link):
 
     persian_title = translate_to_persian(title)
 
-    message = (
-        f"🟢 <b>خبر کریپتو | Crypto News</b>\n\n"
-        f"🇦🇫 <b>فارسی:</b>\n"
+    message = ( 
+        f"🌐 <b>فارسی:</b>\n"
         f"{html.escape(persian_title)}\n\n"
-        f"🇬🇧 <b>English:</b>\n"
+        f"🌐 <b>English:</b>\n"
         f"{html.escape(title)}\n\n"
         f"🔗 <b>Source:</b> {html.escape(source)}\n"
         f'<a href="{html.escape(link)}">Read full news</a>'
