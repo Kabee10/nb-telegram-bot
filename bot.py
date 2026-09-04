@@ -200,7 +200,9 @@ def referrals_worker():
             print(f"Referral worker error: {e}")
 
         time.sleep(86400)
-        def price_worker():
+def price_worker():
+
+            
     message_id = None
 
     coins = {
