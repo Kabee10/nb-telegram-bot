@@ -155,7 +155,7 @@ def binance_referral_worker():
 
 
         time.sleep(86400)
-        def referrals_worker():
+  def referrals_worker():      
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     text = (
