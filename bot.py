@@ -119,6 +119,40 @@ def news_worker():
 
         time.sleep(CHECK_INTERVAL)
 
+def binance_referral_worker():
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
+    text = (
+        "🟡 <b>Binance</b>\n\n"
+        "قیمت ارزهای دیجیتال را مشاهده کنید و در Binance ثبت‌نام کنید 👇"
+    )
+
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {
+                    "text": "🟡 مشاهده Binance",
+                    "url": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6"
+                }
+            ]
+        ]
+    }
+
+    while True:
+        try:
+            requests.post(
+                url,
+                data={
+                    "chat_id": CHANNEL_ID,
+                    "text": text,
+                    "parse_mode": "HTML",
+                    "reply_markup": __import__("json").dumps(keyboard)
+                },
+                timeout=20
+            )
+        except Exception as e:
+            print(f"Binance referral error: {e}")
+
+        time.sleep(86400)
 threading.Thread(target=news_worker, daemon=True).start()
-
+threading.Thread(target=binance_referral_worker, daemon=True).start()
