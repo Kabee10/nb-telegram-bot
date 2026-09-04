@@ -159,24 +159,8 @@ def referrals_worker():
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     text = (
-        "🚀 <b>لینک‌های پیشنهادی NH Exchange</b>\n\n"
-        "از لینک‌ها و کدهای دعوت زیر می‌توانید استفاده کنید 👇\n\n"
-        "🟡 Binance\n"
-        "⚫ OKX\n"
-        "🟠 Bybit\n"
-        "⚽ Football Farm — Code: NH499I\n"
-        "💎 Rubi Block — Code: NH555\n"
-        "⛏ BlockDAG X1 — Code: wQQYI1J9\n"
-        "⚽ Goal Chain — Code: Nh499i\n"
-        "🐝 Bee Network — Code: nabiullah1991\n"
-        "🔷 Alpha Network — Code: Kabee1112\n"
-        "🟣 Pi Network — Code: kabee11\n"
-        "⛏ PERIA — Code: B424BE29\n"
-        "🌱 Sprout Network — Code: nh499i\n"
-        "🔐 DeNet\n"
-        "💎 TON Station\n"
-        "🔥 HOT Labs\n"
-        "🤖 ATF Airdrop\n\n"
+        
+             "برای ورود به هر برنامه، روی دکمه مربوطه در پایین بزنید 👇\n"
         "⚠️ قبل از استفاده از هر پروژه، خودتان تحقیق کنید."
     )
 
