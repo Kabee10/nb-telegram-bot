@@ -153,6 +153,70 @@ def binance_referral_worker():
         except Exception as e:
             print(f"Binance referral error: {e}")
 
+
+        time.sleep(86400)
+        def referrals_worker():
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+    text = (
+        "🚀 <b>لینک‌های پیشنهادی NH Exchange</b>\n\n"
+        "از لینک‌ها و کدهای دعوت زیر می‌توانید استفاده کنید 👇\n\n"
+        "🟡 Binance\n"
+        "⚫ OKX\n"
+        "🟠 Bybit\n"
+        "⚽ Football Farm — Code: NH499I\n"
+        "💎 Rubi Block — Code: NH555\n"
+        "⛏ BlockDAG X1 — Code: wQQYI1J9\n"
+        "⚽ Goal Chain — Code: Nh499i\n"
+        "🐝 Bee Network — Code: nabiullah1991\n"
+        "🔷 Alpha Network — Code: Kabee1112\n"
+        "🟣 Pi Network — Code: kabee11\n"
+        "⛏ PERIA — Code: B424BE29\n"
+        "🌱 Sprout Network — Code: nh499i\n"
+        "🔐 DeNet\n"
+        "💎 TON Station\n"
+        "🔥 HOT Labs\n"
+        "🤖 ATF Airdrop\n\n"
+        "⚠️ قبل از استفاده از هر پروژه، خودتان تحقیق کنید."
+    )
+
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "🟡 Binance", "url": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6"}],
+            [{"text": "⚫ OKX", "url": "https://okx.com/en-ae/join/75348298"}],
+            [{"text": "🟠 Bybit", "url": "https://www.bybit.com/invite?ref=OQKN2P&medium=referral&utm_campaign=evergreen&share_to=post"}],
+            [{"text": "⚽ Football Farm", "url": "https://farm.goalmanager.io"}],
+            [{"text": "💎 Rubi Block", "url": "https://rubi.click/join/NH555"}],
+            [{"text": "⚽ Goal Chain", "url": "https://goalmanager.io"}],
+            [{"text": "🐝 Bee Network", "url": "https://j.bee.com/s?a=nabiullah1991"}],
+            [{"text": "🔷 Alpha Network", "url": "https://www.minealpha.net"}],
+            [{"text": "🟣 Pi Network", "url": "https://minepi.com/kabee11"}],
+            [{"text": "⛏ PERIA", "url": "https://miningperia.com/pages/join.php?ref=B424BE29"}],
+            [{"text": "🌱 Sprout Network", "url": "https://play.google.com/store/apps/details?id=com.sproutnetwork.app"}],
+            [{"text": "🔐 DeNet", "url": "https://links.denet.app/mobile?referrer=0x4e4afb9f1d19d071bf5d782f96e401ededc26601"}],
+            [{"text": "💎 TON Station", "url": "https://tonstation.app/i/WCPUHAJ8"}],
+            [{"text": "🔥 HOT Labs", "url": "https://app.hot-labs.org/link?916094uu"}],
+            [{"text": "🤖 ATF Airdrop", "url": "https://t.me/ATF_AIRDROP_bot?start=1469027938"}]
+        ]
+    }
+
+    while True:
+        try:
+            requests.post(
+                url,
+                data={
+                    "chat_id": CHANNEL_ID,
+                    "text": text,
+                    "parse_mode": "HTML",
+                    "reply_markup": __import__("json").dumps(keyboard)
+                },
+                timeout=20
+            )
+        except Exception as e:
+            print(f"Referral worker error: {e}")
+
         time.sleep(86400)
 threading.Thread(target=news_worker, daemon=True).start()
-threading.Thread(target=binance_referral_worker, daemon=True).start()
+
+
+threading.Thread(target=referrals_worker, daemon=True).start()
