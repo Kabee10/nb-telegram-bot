@@ -200,7 +200,75 @@ def referrals_worker():
             print(f"Referral worker error: {e}")
 
         time.sleep(86400)
+        def price_worker():
+    message_id = None
+
+    coins = {
+        "BTCUSDT": "₿ Bitcoin (BTC)",
+        "ETHUSDT": "♦️ Ethereum (ETH)",
+        "BNBUSDT": "🟡 BNB",
+        "SOLUSDT": "🟣 Solana (SOL)",
+        "TONUSDT": "💎 TON",
+        "DOGEUSDT": "🐕 Dogecoin (DOGE)",
+        "TRXUSDT": "🔴 TRON (TRX)"
+    }
+
+    while True:
+        try:
+            lines = ["<b>💰 قیمت لحظه‌ای ارزهای دیجیتال</b>\n"]
+
+            for symbol, name in coins.items():
+                r = requests.get(
+                    f"https://api.binance.com/api/v3/ticker/24hr?symbol={symbol}",
+                    timeout=20
+                )
+                data = r.json()
+
+                price = float(data["lastPrice"])
+                change = float(data["priceChangePercent"])
+
+                lines.append(
+                    f"{name} — <b>${price:,.4f}</b> ({change:+.2f}%)"
+                )
+
+            lines.append(
+                f"\n🕒 بروزرسانی: {time.strftime('%H:%M UTC', time.gmtime())}"
+            )
+
+            text = "\n".join(lines)
+
+            if message_id is None:
+                r = requests.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                    data={
+                        "chat_id": CHANNEL_ID,
+                        "text": text,
+                        "parse_mode": "HTML"
+                    },
+                    timeout=20
+                )
+
+                message_id = r.json()["result"]["message_id"]
+
+            else:
+                requests.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/editMessageText",
+                    data={
+                        "chat_id": CHANNEL_ID,
+                        "message_id": message_id,
+                        "text": text,
+                        "parse_mode": "HTML"
+                    },
+                    timeout=20
+                )
+
+        except Exception as e:
+            print(f"Price worker error: {e}")
+
+        time.sleep(3600)
 threading.Thread(target=news_worker, daemon=True).start()
 
 
 threading.Thread(target=referrals_worker, daemon=True).start()
+threading.Thread(target=price_worker, daemon=True).start()
+
