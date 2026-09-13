@@ -224,10 +224,27 @@ def referrals_worker():
                 },
                 timeout=20
             )
+               if FB_PAGE_TOKEN and FB_PAGE_ID:
+                fb_links = []
+                for row in keyboard["inline_keyboard"]:
+                    for button in row:
+                        if button.get("url"):
+                            fb_links.append(f"{button['text']}: {button['url']}")
+
+                fb_text = text + "\n\n" + "\n".join(fb_links)
+
+                requests.post(
+                    f"https://graph.facebook.com/v26.0/{FB_PAGE_ID}/feed",
+                    data={
+                        "message": fb_text,
+                        "access_token": FB_PAGE_TOKEN,
+                    },
+                    timeout=20,
+            )         
         except Exception as e:
             print(f"Referral worker error: {e}")
 
-        time.sleep(86400)
+        time.sleep(172800)
 def price_worker():
 
             
@@ -295,7 +312,7 @@ def price_worker():
         except Exception as e:
             print(f"Price worker error: {e}")
 
-        time.sleep(3600)
+        time.sleep(86400)
 threading.Thread(target=news_worker, daemon=True).start()
 
 
