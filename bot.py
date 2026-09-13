@@ -224,7 +224,7 @@ def referrals_worker():
                 },
                 timeout=20
             )
-        if FB_PAGE_TOKEN and FB_PAGE_ID:
+         if FB_PAGE_TOKEN and FB_PAGE_ID:
                 fb_links = []
                 for row in keyboard["inline_keyboard"]:
                     for button in row:
