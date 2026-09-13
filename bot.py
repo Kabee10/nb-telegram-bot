@@ -10,7 +10,8 @@ from deep_translator import GoogleTranslator
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-
+FB_PAGE_TOKEN = os.getenv("FB_PAGE_TOKEN")
+FB_PAGE_ID = os.getenv("FB_PAGE_ID")
 RSS_FEEDS = [
     ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/"),
     ("Cointelegraph", "https://cointelegraph.com/rss"),
@@ -68,7 +69,32 @@ def send_to_telegram(source, title, link):
 
     print(response.text)
 
+def send_to_facebook(source, title, link):
+    if not FB_PAGE_TOKEN or not FB_PAGE_ID:
+        print("FB_PAGE_TOKEN or FB_PAGE_ID is missing")
+        return
 
+    persian_title = translate_to_persian(title)
+
+    message = (
+        f"🌐 فارسی:\n{persian_title}\n\n"
+        f"🌐 English:\n{title}\n\n"
+        f"🔗 Source: {source}\n"
+        f"{link}"
+    )
+
+    url = f"https://graph.facebook.com/v26.0/{FB_PAGE_ID}/feed"
+
+    response = requests.post(
+        url,
+        data={
+            "message": message,
+            "access_token": FB_PAGE_TOKEN,
+        },
+        timeout=30,
+    )
+
+    print("Facebook:", response.text)
 def get_articles():
     articles = []
 
@@ -111,9 +137,11 @@ def news_worker():
 
             # حداکثر 3 خبر در هر بررسی
             for source, title, link in new_articles[:3]:
+               
                 send_to_telegram(source, title, link)
+                send_to_facebook(source, title, link)
                 time.sleep(10)
-
+  
         except Exception as e:
             print(f"Worker error: {e}")
 
