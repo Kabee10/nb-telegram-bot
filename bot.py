@@ -6,7 +6,7 @@ import requests
 import feedparser
 
 from flask import Flask
-from deep_translator import GoogleTranslator
+from deep_translator import GoogleTranslator, MyMemoryTranslator
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
@@ -34,7 +34,14 @@ def translate_to_persian(text):
         if translated and "Error 500" not in translated and "Server Error" not in translated:
             return translated
     except Exception as e:
-        print(f"Translation error: {e}")
+        print(f"Google translation error: {e}")
+
+    try:
+        translated = MyMemoryTranslator(source="en-GB", target="fa-IR").translate(text)
+        if translated:
+            return translated
+    except Exception as e:
+        print(f"MyMemory translation error: {e}")
 
     return "ترجمه فارسی موقتاً در دسترس نیست."
 
