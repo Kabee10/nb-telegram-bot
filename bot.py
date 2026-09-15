@@ -30,21 +30,10 @@ def home():
 
 def translate_to_persian(text):
     try:
-        translated = GoogleTranslator(source="en", target="fa").translate(text)
-        if translated:
-            return translated
+        return GoogleTranslator(source="en", target="fa").translate(text)
     except Exception as e:
-        print(f"Google translation error: {e}")
-
-    try:
-        translated = MyMemoryTranslator(source="en", target="fa").translate(text)
-        if translated:
-            return translated
-    except Exception as e:
-        print(f"MyMemory translation error: {e}")
-
-    return text
-
+        print(f"Translation error: {e}")
+        return ""
 def send_to_telegram(source, title, link):
     if not BOT_TOKEN or not CHANNEL_ID:
         print("BOT_TOKEN or CHANNEL_ID is missing.")
