@@ -36,6 +36,13 @@ def translate_to_persian(text):
     except Exception as e:
         print(f"Google translation error: {e}")
 
+        try:
+        translated = MyMemoryTranslator(source="en-GB", target="fa-IR").translate(text)
+        if translated:
+            return translated
+    except Exception as e:
+        print(f"MyMemory translation error: {e}")
+
     return text
 
 def send_to_telegram(source, title, link):
