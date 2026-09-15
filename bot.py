@@ -36,8 +36,8 @@ def translate_to_persian(text):
     except Exception as e:
         print(f"Google translation error: {e}")
 
-        try:
-            translated = MyMemoryTranslator(source="en-GB", target="fa-IR").translate(text)
+    try:
+        translated = MyMemoryTranslator(source="en", target="fa").translate(text)
         if translated:
             return translated
     except Exception as e:
