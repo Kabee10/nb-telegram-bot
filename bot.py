@@ -31,19 +31,12 @@ def home():
 def translate_to_persian(text):
     try:
         translated = GoogleTranslator(source="en", target="fa").translate(text)
-        if translated and "Error 500" not in translated and "Server Error" not in translated:
+        if translated:
             return translated
     except Exception as e:
         print(f"Google translation error: {e}")
 
-    try:
-        translated = MyMemoryTranslator(source="en-GB", target="fa-IR").translate(text)
-        if translated:
-            return translated
-    except Exception as e:
-        print(f"MyMemory translation error: {e}")
-
-    return "ترجمه فارسی موقتاً در دسترس نیست."
+    return text
 
 def send_to_telegram(source, title, link):
     if not BOT_TOKEN or not CHANNEL_ID:
