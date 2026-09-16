@@ -33,7 +33,7 @@ def translate_to_persian(text):
         return GoogleTranslator(source="en", target="fa").translate(text)
     except Exception as e:
         print(f"Translation error: {e}")
-        return ""
+        return text
 def send_to_telegram(source, title, link):
     if not BOT_TOKEN or not CHANNEL_ID:
         print("BOT_TOKEN or CHANNEL_ID is missing.")
