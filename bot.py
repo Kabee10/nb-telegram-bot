@@ -27,17 +27,24 @@ app = Flask(__name__)
 def home():
     return "NB Telegram Crypto Bot is running ✅"
 
-
 def translate_to_persian(text):
     try:
         url = "https://api.mymemory.translated.net/get"
         params = {"q": text, "langpair": "en|fa"}
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=15)
         response.raise_for_status()
-        return response.json()["responseData"]["translatedText"]
+
+        translated = response.json()["responseData"]["translatedText"]
+
+        # فقط وقتی قبول کن که واقعاً حروف فارسی داشته باشد
+        if translated and any("\u0600" <= c <= "\u06FF" for c in translated):
+            return translated
+
     except Exception as e:
         print(f"Translation error: {e}")
-        return text
+
+    return "ترجمه فارسی موقتاً در دسترس نیست."
+
 def send_to_telegram(source, title, link):
     if not BOT_TOKEN or not CHANNEL_ID:
         print("BOT_TOKEN or CHANNEL_ID is missing.")
