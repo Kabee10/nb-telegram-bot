@@ -30,6 +30,7 @@ def home():
 
 def translate_to_persian(text):
     try:
+        time.sleep(2)
         return GoogleTranslator(source="en", target="fa").translate(text)
     except Exception as e:
         print(f"Translation error: {e}")
