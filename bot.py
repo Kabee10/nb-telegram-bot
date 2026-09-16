@@ -30,8 +30,11 @@ def home():
 
 def translate_to_persian(text):
     try:
-        time.sleep(2)
-        return GoogleTranslator(source="en", target="fa").translate(text)
+        url = "https://api.mymemory.translated.net/get"
+        params = {"q": text, "langpair": "en|fa"}
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()["responseData"]["translatedText"]
     except Exception as e:
         print(f"Translation error: {e}")
         return text
