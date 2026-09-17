@@ -135,3 +135,19 @@ threading.Thread(
     target=news_worker,
     daemon=True
 ).start()
+
+def test_telegram():
+    try:
+        r = requests.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            data={
+                "chat_id": CHANNEL_ID,
+                "text": "✅ NB Telegram Bot test successful!"
+            },
+            timeout=20
+        )
+        print("TELEGRAM TEST:", r.status_code, r.text)
+    except Exception as e:
+        print("TELEGRAM TEST ERROR:", e)
+
+test_telegram()
