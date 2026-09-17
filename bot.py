@@ -316,8 +316,6 @@ def price_worker():
 
         time.sleep(86400)
 threading.Thread(target=news_worker, daemon=True).start()
-
-
 threading.Thread(target=referrals_worker, daemon=True).start()
 threading.Thread(target=price_worker, daemon=True).start()
 
