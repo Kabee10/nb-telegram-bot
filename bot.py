@@ -57,8 +57,6 @@ def send_to_telegram(source, title, link):
 
     message = (
         
-        f"{html.escape(persian_title)}\n\n"
-        
         f"{html.escape(title)}\n\n"
         f"🔗 <b>Source:</b> {html.escape(source)}\n"
         f'<a href="{html.escape(link)}">Read full news</a>'
