@@ -29,17 +29,9 @@ def home():
 
 def translate_to_persian(text):
     try:
-        url = "https://api.mymemory.translated.net/get"
-        params = {"q": text, "langpair": "en|fa"}
-        response = requests.get(url, params=params, timeout=15)
-        response.raise_for_status()
-
-        translated = response.json()["responseData"]["translatedText"]
-
-        # فقط وقتی قبول کن که واقعاً حروف فارسی داشته باشد
-        if translated and any("\u0600" <= c <= "\u06FF" for c in translated):
+        translated = GoogleTranslator(source="en", target="fa").translate(text)
+        if translated:
             return translated
-
     except Exception as e:
         print(f"Translation error: {e}")
 
