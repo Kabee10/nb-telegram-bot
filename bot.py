@@ -16,7 +16,7 @@ RSS_FEEDS = [
     ("Cointelegraph", "https://cointelegraph.com/rss"),
 ]
 
-CHECK_INTERVAL = 900
+CHECK_INTERVAL = 60
 
 app = Flask(__name__)
 
