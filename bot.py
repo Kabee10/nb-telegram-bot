@@ -6,48 +6,56 @@ import requests
 import feedparser
 
 from flask import Flask
-from deep_translator import GoogleTranslator, MyMemoryTranslator
+from deep_translator import GoogleTranslator
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-FB_PAGE_TOKEN = os.getenv("FB_PAGE_TOKEN")
-FB_PAGE_ID = os.getenv("FB_PAGE_ID")
+
 RSS_FEEDS = [
     ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/"),
     ("Cointelegraph", "https://cointelegraph.com/rss"),
 ]
 
-CHECK_INTERVAL = 900  # هر 15 دقیقه
-seen_links = set()
+CHECK_INTERVAL = 900
 
 app = Flask(__name__)
+
+seen_links = set()
 
 
 @app.route("/")
 def home():
     return "NB Telegram Crypto Bot is running ✅"
 
+
 def translate_to_persian(text):
     try:
-        translated = GoogleTranslator(source="en", target="fa").translate(text)
+        translated = GoogleTranslator(
+            source="en",
+            target="fa"
+        ).translate(text)
+
         if translated:
             return translated
+
     except Exception as e:
         print(f"Translation error: {e}")
 
-    return "ترجمه فارسی موقتاً در دسترس نیست."
+    return None
+
 
 def send_to_telegram(source, title, link):
     if not BOT_TOKEN or not CHANNEL_ID:
         print("BOT_TOKEN or CHANNEL_ID is missing.")
         return
 
-        persian_title = translate_to_persian(title)
+    persian_title = translate_to_persian(title)
 
-    if persian_title == "ترجمه فارسی موقتاً در دسترس نیست.":
-        print("Translation failed; skipping this article.")
+    if not persian_title:
+        print("Translation failed; skipping article.")
         return
-    message = ( 
+
+    message = (
         f"🌐 <b>فارسی:</b>\n"
         f"{html.escape(persian_title)}\n\n"
         f"🌐 <b>English:</b>\n"
@@ -69,34 +77,12 @@ def send_to_telegram(source, title, link):
         timeout=30,
     )
 
-    print(response.text)
+    if response.ok:
+        print(f"Sent: {title}")
+    else:
+        print(f"Telegram error: {response.text}")
 
-def send_to_facebook(source, title, link):
-    if not FB_PAGE_TOKEN or not FB_PAGE_ID:
-        print("FB_PAGE_TOKEN or FB_PAGE_ID is missing")
-        return
 
-    persian_title = translate_to_persian(title)
-
-    message = (
-        f"🌐 فارسی:\n{persian_title}\n\n"
-        f"🌐 English:\n{title}\n\n"
-        f"🔗 Source: {source}\n"
-        f"{link}"
-    )
-
-    url = f"https://graph.facebook.com/v26.0/{FB_PAGE_ID}/feed"
-
-    response = requests.post(
-        url,
-        data={
-            "message": message,
-            "access_token": FB_PAGE_TOKEN,
-        },
-        timeout=30,
-    )
-
-    print("Facebook:", response.text)
 def get_articles():
     articles = []
 
@@ -124,198 +110,29 @@ def initialize_seen():
 
 def news_worker():
     initialize_seen()
+    print("News worker started.")
 
     while True:
         try:
             articles = get_articles()
             new_articles = []
 
-            for article in articles:
-                source, title, link = article
-
+            for source, title, link in articles:
                 if link not in seen_links:
                     seen_links.add(link)
-                    new_articles.append(article)
+                    new_articles.append((source, title, link))
 
-            # حداکثر 3 خبر در هر بررسی
             for source, title, link in new_articles[:3]:
-               
                 send_to_telegram(source, title, link)
-                send_to_facebook(source, title, link)
                 time.sleep(10)
-  
+
         except Exception as e:
             print(f"Worker error: {e}")
 
         time.sleep(CHECK_INTERVAL)
 
-def binance_referral_worker():
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-    text = (
-        "🟡 <b>Binance</b>\n\n"
-        "قیمت ارزهای دیجیتال را مشاهده کنید و در Binance ثبت‌نام کنید 👇"
-    )
-
-    keyboard = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "🟡 مشاهده Binance",
-                    "url": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6"
-                }
-            ]
-        ]
-    }
-
-    while True:
-        try:
-            requests.post(
-                url,
-                data={
-                    "chat_id": CHANNEL_ID,
-                    "text": text,
-                    "parse_mode": "HTML",
-                    "reply_markup": __import__("json").dumps(keyboard)
-                },
-                timeout=20
-            )
-        except Exception as e:
-            print(f"Binance referral error: {e}")
-
-
-        time.sleep(86400)
-def referrals_worker():      
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    text = (
-        
-             "برای ورود به هر برنامه، روی دکمه مربوطه در پایین بزنید 👇\n"
-        "⚠️ قبل از استفاده از هر پروژه، خودتان تحقیق کنید."
-    )
-
-    keyboard = {
-        "inline_keyboard": [
-            [{"text": "🟡 Binance", "url": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6"}],
-            [{"text": "⚫ OKX", "url": "https://okx.com/en-ae/join/75348298"}],
-            [{"text": "🟠 Bybit", "url": "https://www.bybit.com/invite?ref=OQKN2P&medium=referral&utm_campaign=evergreen&share_to=post"}],
-            [{"text": "⚽ Football Farm", "url": "https://farm.goalmanager.io"}],
-            [{"text": "💎 Rubi Block", "url": "https://rubi.click/join/NH555"}],
-            [{"text": "⚽ Goal Chain", "url": "https://goalmanager.io"}],
-            [{"text": "🐝 Bee Network", "url": "https://j.bee.com/s?a=nabiullah1991"}],
-            [{"text": "🔷 Alpha Network", "url": "https://www.minealpha.net"}],
-            [{"text": "🟣 Pi Network", "url": "https://minepi.com/kabee11"}],
-            [{"text": "⛏ PERIA", "url": "https://miningperia.com/pages/join.php?ref=B424BE29"}],
-            [{"text": "🌱 Sprout Network", "url": "https://play.google.com/store/apps/details?id=com.sproutnetwork.app"}],
-            [{"text": "🔐 DeNet", "url": "https://links.denet.app/mobile?referrer=0x4e4afb9f1d19d071bf5d782f96e401ededc26601"}],
-            [{"text": "💎 TON Station", "url": "https://tonstation.app/i/WCPUHAJ8"}],
-            [{"text": "🔥 HOT Labs", "url": "https://app.hot-labs.org/link?916094uu"}],
-            [{"text": "🤖 ATF Airdrop", "url": "https://t.me/ATF_AIRDROP_bot?start=1469027938"}]
-        ]
-    }
-
-    while True:
-        try:
-            requests.post(
-                url,
-                data={
-                    "chat_id": CHANNEL_ID,
-                    "text": text,
-                    "parse_mode": "HTML",
-                    "reply_markup": __import__("json").dumps(keyboard)
-                },
-                timeout=20
-            )
-            if FB_PAGE_TOKEN and FB_PAGE_ID:
-                fb_links = []
-                for row in keyboard["inline_keyboard"]:
-                    for button in row:
-                        if button.get("url"):
-                            fb_links.append(f"{button['text']}: {button['url']}")
-
-                fb_text = text + "\n\n" + "\n".join(fb_links)
-
-                requests.post(
-                    f"https://graph.facebook.com/v26.0/{FB_PAGE_ID}/feed",
-                    data={
-                        "message": fb_text,
-                        "access_token": FB_PAGE_TOKEN,
-                    },
-                    timeout=20,
-            )         
-        except Exception as e:
-            print(f"Referral worker error: {e}")
-
-        time.sleep(172800)
-def price_worker():
-
-            
-    message_id = None
-
-    coins = {
-        "BTCUSDT": "₿ Bitcoin (BTC)",
-        "ETHUSDT": "♦️ Ethereum (ETH)",
-        "BNBUSDT": "🟡 BNB",
-        "SOLUSDT": "🟣 Solana (SOL)",
-        "TONUSDT": "💎 TON",
-        "DOGEUSDT": "🐕 Dogecoin (DOGE)",
-        "TRXUSDT": "🔴 TRON (TRX)"
-    }
-
-    while True:
-        try:
-            lines = ["<b>💰 قیمت لحظه‌ای ارزهای دیجیتال</b>\n"]
-
-            for symbol, name in coins.items():
-                r = requests.get(
-                    f"https://api.binance.com/api/v3/ticker/24hr?symbol={symbol}",
-                    timeout=20
-                )
-                data = r.json()
-
-                price = float(data["lastPrice"])
-                change = float(data["priceChangePercent"])
-
-                lines.append(
-                    f"{name} — <b>${price:,.4f}</b> ({change:+.2f}%)"
-                )
-
-            lines.append(
-                f"\n🕒 بروزرسانی: {time.strftime('%H:%M UTC', time.gmtime())}"
-            )
-
-            text = "\n".join(lines)
-
-            if message_id is None:
-                r = requests.post(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                    data={
-                        "chat_id": CHANNEL_ID,
-                        "text": text,
-                        "parse_mode": "HTML"
-                    },
-                    timeout=20
-                )
-
-                message_id = r.json()["result"]["message_id"]
-
-            else:
-                requests.post(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/editMessageText",
-                    data={
-                        "chat_id": CHANNEL_ID,
-                        "message_id": message_id,
-                        "text": text,
-                        "parse_mode": "HTML"
-                    },
-                    timeout=20
-                )
-
-        except Exception as e:
-            print(f"Price worker error: {e}")
-
-        time.sleep(86400)
-threading.Thread(target=news_worker, daemon=True).start()
-threading.Thread(target=referrals_worker, daemon=True).start()
-threading.Thread(target=price_worker, daemon=True).start()
-
+threading.Thread(
+    target=news_worker,
+    daemon=True
+).start()
