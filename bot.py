@@ -30,18 +30,17 @@ def home():
 
 def translate_to_persian(text):
     try:
+        time.sleep(2)
         translated = GoogleTranslator(
             source="en",
             target="fa"
         ).translate(text)
 
-        if translated:
-            return translated
+        return translated if translated else text
 
     except Exception as e:
         print(f"Translation error: {e}")
-
-    return None
+        return text
 
 
 def send_to_telegram(source, title, link):
