@@ -28,19 +28,24 @@ def home():
     return "NB Telegram Crypto Bot is running ✅"
 
 
+
 def translate_to_persian(text):
-    try:
-        time.sleep(2)
-        translated = GoogleTranslator(
-            source="en",
-            target="fa"
-        ).translate(text)
+    for attempt in range(3):
+        try:
+            time.sleep(3)
+            translated = GoogleTranslator(
+                source="en",
+                target="fa"
+            ).translate(text)
 
-        return translated if translated else text
+            if translated and translated != text:
+                return translated
 
-    except Exception as e:
-        print(f"Translation error: {e}")
-        return text
+        except Exception as e:
+            print(f"Translation attempt {attempt + 1} error: {e}")
+            time.sleep(5)
+
+    return text
 
 
 def send_to_telegram(source, title, link):
