@@ -53,16 +53,12 @@ def send_to_telegram(source, title, link):
         print("BOT_TOKEN or CHANNEL_ID is missing.")
         return
 
-    persian_title = translate_to_persian(title)
-
-    if not persian_title:
-        print("Translation failed; skipping article.")
-        return
+    
 
     message = (
-        f"🌐 <b>فارسی:</b>\n"
+        
         f"{html.escape(persian_title)}\n\n"
-        f"🌐 <b>English:</b>\n"
+        
         f"{html.escape(title)}\n\n"
         f"🔗 <b>Source:</b> {html.escape(source)}\n"
         f'<a href="{html.escape(link)}">Read full news</a>'
