@@ -135,3 +135,65 @@ threading.Thread(
     daemon=True
 ).start()
 
+def price_worker():
+    while True:
+        try:
+            coins = {
+                "BTC": "bitcoin",
+                "ETH": "ethereum",
+                "BNB": "binancecoin",
+                "SOL": "solana",
+                "TON": "the-open-network",
+                "XRP": "ripple",
+                "DOGE": "dogecoin",
+                "TRX": "tron"
+            }
+
+            ids = ",".join(coins.values())
+            api_url = (
+                "https://api.coingecko.com/api/v3/simple/price"
+                f"?ids={ids}&vs_currencies=usd&include_24hr_change=true"
+            )
+
+            data = requests.get(api_url, timeout=30).json()
+
+            message = "💰 <b>Crypto Prices</b>\n\n"
+
+            for symbol, coin_id in coins.items():
+                price = data[coin_id]["usd"]
+                change = data[coin_id].get("usd_24h_change", 0)
+
+                if price < 1:
+                    price_text = f"${price:.6f}"
+                else:
+                    price_text = f"${price:,.2f}"
+
+                sign = "🟢" if change >= 0 else "🔴"
+
+                message += (
+                    f"{sign} <b>{symbol}</b>: {price_text} "
+                    f"({change:+.2f}%)\n"
+                )
+
+            requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                data={
+                    "chat_id": CHANNEL_ID,
+                    "text": message,
+                    "parse_mode": "HTML"
+                },
+                timeout=30
+            )
+
+            print("Daily crypto prices sent.")
+
+        except Exception as e:
+            print(f"Price worker error: {e}")
+
+        time.sleep(86400)
+
+
+threading.Thread(
+    target=price_worker,
+    daemon=True
+).start()
