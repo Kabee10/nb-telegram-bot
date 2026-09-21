@@ -164,8 +164,8 @@ def price_worker():
 
                     price = float(data["amount"])
                     stats = requests.get(f"https://api.exchange.coinbase.com/products/{symbol}-USD/stats", timeout=20).json()
-                   open_price = float(stats["open"])
-change = ((price - open_price) / open_price) * 100
+                    open_price = float(stats["open"])
+                    change = ((price - open_price) / open_price) * 100
                     if price < 1:
                         price_text = f"${price:.6f}"
                     else:
