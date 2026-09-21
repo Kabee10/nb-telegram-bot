@@ -155,15 +155,14 @@ def price_worker():
             for symbol, coin_id in coins.items():
                 try:
                     response = requests.get(
-                        f"https://api.coincap.io/v2/assets/{coin_id}",
+                        f"https://api.coinbase.com/v2/prices/{symbol}-USD/spot",
                         timeout=20,
                     )
                     response.raise_for_status()
                     data = response.json()["data"]
 
-                    price = float(data["priceUsd"])
-                    change = float(data["changePercent24Hr"])
-
+                    price = float(data["amount"])
+                    change = 0
                     if price < 1:
                         price_text = f"${price:.6f}"
                     else:
