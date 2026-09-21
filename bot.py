@@ -208,7 +208,7 @@ def price_worker():
         except Exception as e:
             print(f"Price worker error: {e}")
 
-        time.sleep(300)
+        time.sleep(86400)
 
 
 threading.Thread(
