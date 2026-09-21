@@ -137,63 +137,71 @@ threading.Thread(
 
 def price_worker():
     coins = {
-        "BTC": "BTCUSDT",
-        "ETH": "ETHUSDT",
-        "BNB": "BNBUSDT",
-        "SOL": "SOLUSDT",
-        "TON": "TONUSDT",
-        "XRP": "XRPUSDT",
-        "DOGE": "DOGEUSDT",
-        "TRX": "TRXUSDT",
+        "BTC": "bitcoin",
+        "ETH": "ethereum",
+        "BNB": "binance-coin",
+        "SOL": "solana",
+        "TON": "toncoin",
+        "XRP": "xrp",
+        "DOGE": "dogecoin",
+        "TRX": "tron",
     }
 
     while True:
         try:
             message = "💰 <b>Crypto Prices — 24h</b>\n\n"
+            added = 0
 
-            for symbol, pair in coins.items():
-                response = requests.get(
-                    "https://api.binance.com/api/v3/ticker/24hr",
-                    params={"symbol": pair},
-                    timeout=20,
+            for symbol, coin_id in coins.items():
+                try:
+                    response = requests.get(
+                        f"https://api.coincap.io/v2/assets/{coin_id}",
+                        timeout=20,
+                    )
+                    response.raise_for_status()
+                    data = response.json()["data"]
+
+                    price = float(data["priceUsd"])
+                    change = float(data["changePercent24Hr"])
+
+                    if price < 1:
+                        price_text = f"${price:.6f}"
+                    else:
+                        price_text = f"${price:,.2f}"
+
+                    sign = "🟢" if change >= 0 else "🔴"
+
+                    message += (
+                        f"{sign} <b>{symbol}</b>: {price_text} "
+                        f"({change:+.2f}%)\n"
+                    )
+                    added += 1
+
+                except Exception as e:
+                    print(f"{symbol} price error: {e}")
+
+            if added > 0:
+                message += (
+                    '\n🔗 Source: '
+                    '<a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6">'
+                    'Binance</a>'
+                )
+
+                response = requests.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                    data={
+                        "chat_id": CHANNEL_ID,
+                        "text": message,
+                        "parse_mode": "HTML",
+                        "disable_web_page_preview": True,
+                    },
+                    timeout=30,
                 )
                 response.raise_for_status()
-                ticker = response.json()
 
-                price = float(ticker["lastPrice"])
-                change = float(ticker["priceChangePercent"])
-
-                if price < 1:
-                    price_text = f"${price:.6f}"
-                else:
-                    price_text = f"${price:,.2f}"
-
-                sign = "🟢" if change >= 0 else "🔴"
-
-                message += (
-                    f"{sign} <b>{symbol}</b>: {price_text} "
-                    f"({change:+.2f}%)\n"
-                )
-
-            message += (
-                '\n🔗 Source: '
-                '<a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6">'
-                'Binance</a>'
-            )
-
-            response = requests.post(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                data={
-                    "chat_id": CHANNEL_ID,
-                    "text": message,
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": True,
-                },
-                timeout=30,
-            )
-            response.raise_for_status()
-
-            print("Daily crypto prices sent.")
+                print("Daily crypto prices sent.")
+            else:
+                print("Price worker error: no prices received.")
 
         except Exception as e:
             print(f"Price worker error: {e}")
