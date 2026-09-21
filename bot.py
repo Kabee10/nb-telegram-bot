@@ -208,7 +208,7 @@ change = ((price - open_price) / open_price) * 100
         except Exception as e:
             print(f"Price worker error: {e}")
 
-        time.sleep(60)
+        time.sleep(300)
 
 
 threading.Thread(
