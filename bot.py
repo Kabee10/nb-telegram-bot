@@ -136,32 +136,32 @@ threading.Thread(
 ).start()
 
 def price_worker():
+    coins = {
+        "BTC": "BTCUSDT",
+        "ETH": "ETHUSDT",
+        "BNB": "BNBUSDT",
+        "SOL": "SOLUSDT",
+        "TON": "TONUSDT",
+        "XRP": "XRPUSDT",
+        "DOGE": "DOGEUSDT",
+        "TRX": "TRXUSDT",
+    }
+
     while True:
         try:
-            coins = {
-                "BTC": "bitcoin",
-                "ETH": "ethereum",
-                "BNB": "binancecoin",
-                "SOL": "solana",
-                "TON": "the-open-network",
-                "XRP": "ripple",
-                "DOGE": "dogecoin",
-                "TRX": "tron"
-            }
+            message = "💰 <b>Crypto Prices — 24h</b>\n\n"
 
-            ids = ",".join(coins.values())
-            api_url = (
-                "https://api.coingecko.com/api/v3/simple/price"
-                f"?ids={ids}&vs_currencies=usd&include_24hr_change=true"
-            )
+            for symbol, pair in coins.items():
+                response = requests.get(
+                    "https://api.binance.com/api/v3/ticker/24hr",
+                    params={"symbol": pair},
+                    timeout=20,
+                )
+                response.raise_for_status()
+                ticker = response.json()
 
-            data = requests.get(api_url, timeout=30).json()
-
-            message = "💰 <b>Crypto Prices</b>\n\n"
-
-            for symbol, coin_id in coins.items():
-                price = data[coin_id]["usd"]
-                change = data[coin_id].get("usd_24h_change", 0)
+                price = float(ticker["lastPrice"])
+                change = float(ticker["priceChangePercent"])
 
                 if price < 1:
                     price_text = f"${price:.6f}"
@@ -175,15 +175,23 @@ def price_worker():
                     f"({change:+.2f}%)\n"
                 )
 
-            requests.post(
+            message += (
+                '\n🔗 Source: '
+                '<a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00UDM2H9E6">'
+                'Binance</a>'
+            )
+
+            response = requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 data={
                     "chat_id": CHANNEL_ID,
                     "text": message,
-                    "parse_mode": "HTML"
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": True,
                 },
-                timeout=30
+                timeout=30,
             )
+            response.raise_for_status()
 
             print("Daily crypto prices sent.")
 
